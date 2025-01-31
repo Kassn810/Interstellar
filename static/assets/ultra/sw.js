@@ -5,7 +5,7 @@ class UVServiceWorker extends EventEmitter {
     super(),
       e.bare || (e.bare = "/fq/"),
       (this.addresses =
-        "string" == typeof e.bare
+        typeof e.bare == "string"
           ? [new URL(e.bare, location)]
           : e.bare.map(e => new URL(e, location))),
       (this.headers = {
@@ -35,7 +35,7 @@ class UVServiceWorker extends EventEmitter {
       (this.browser = Ultraviolet.Bowser.getParser(
         self.navigator.userAgent,
       ).getBrowserName()),
-      "Firefox" === this.browser &&
+      this.browser === "Firefox" &&
         (this.headers.forward.push("user-agent"),
         this.headers.forward.push("content-type"));
   }
@@ -44,7 +44,7 @@ class UVServiceWorker extends EventEmitter {
       return fetch(e);
     try {
       const t = new Ultraviolet(this.config);
-      "function" == typeof this.config.construct &&
+      typeof this.config.construct == "function" &&
         this.config.construct(t, "service");
       const r = await t.cookie.db();
       (t.meta.origin = location.origin),
@@ -56,28 +56,28 @@ class UVServiceWorker extends EventEmitter {
         this.method.empty.includes(e.method.toUpperCase()) ? null : await e.blob(),
       );
       if (
-        ("blob:" === t.meta.url.protocol &&
+        (t.meta.url.protocol === "blob:" &&
           ((n.blob = !0), (n.base = n.url = new URL(n.url.pathname))),
         e.referrer && e.referrer.startsWith(location.origin))
       ) {
         const r = new URL(t.sourceUrl(e.referrer));
         (n.headers.origin ||
-          (t.meta.url.origin !== r.origin && "cors" === e.mode)) &&
+          (t.meta.url.origin !== r.origin && e.mode === "cors")) &&
           (n.headers.origin = r.origin),
           (n.headers.referer = r.href);
       }
       const s = (await t.cookie.getCookies(r)) || [],
         i = t.cookie.serialize(s, t.meta, !1);
-      "Firefox" === this.browser &&
-        "iframe" !== e.destination &&
-        "document" !== e.destination &&
+      this.browser === "Firefox" &&
+        e.destination !== "iframe" &&
+        e.destination !== "document" &&
         n.forward.shift(),
         i && (n.headers.cookie = i),
         (n.headers.Host = n.url.host);
       const o = new HookEvent(n, null, null);
       if ((this.emit("request", o), o.intercepted)) return o.returnValue;
       const a = await fetch(n.send);
-      if (500 === a.status) return Promise.reject("");
+      if (a.status === 500) return Promise.reject("");
       const c = new ResponseContext(n, a, this),
         u = new HookEvent(c, null, null);
       if ((this.emit("beforemod", u), u.intercepted)) return u.returnValue;
@@ -122,7 +122,7 @@ class UVServiceWorker extends EventEmitter {
               }));
         }
       return (
-        "text/event-stream" === n.headers.accept &&
+        n.headers.accept === "text/event-stream" &&
           (c.headers["content-type"] = "text/event-stream"),
         this.emit("response", u),
         u.intercepted
@@ -200,7 +200,7 @@ class RequestContext {
       (this.body = n || null),
       (this.redirect = e.redirect),
       (this.credentials = "omit"),
-      (this.mode = "cors" === e.mode ? e.mode : "same-origin"),
+      (this.mode = e.mode === "cors" ? e.mode : "same-origin"),
       (this.blob = !1);
   }
   get send() {
@@ -215,7 +215,7 @@ class RequestContext {
           "x-bare-host": this.url.hostname,
           "x-bare-path": this.url.pathname + this.url.search,
           "x-bare-port":
-            this.url.port || ("https:" === this.url.protocol ? "443" : "80"),
+            this.url.port || (this.url.protocol === "https:" ? "443" : "80"),
           "x-bare-headers": JSON.stringify(this.headers),
           "x-bare-forward-headers": JSON.stringify(this.forward),
           userKey: userKey,
@@ -242,8 +242,8 @@ class RequestContext {
 }
 function isHtml(e, t = "") {
   return (
-    "text/html" ===
-    (Ultraviolet.mime.contentType(t || e.pathname) || "text/html").split(";")[0]
+    (Ultraviolet.mime.contentType(t || e.pathname) || "text/html").split(";")[0] ===
+    "text/html"
   );
 }
 class HookEvent {
@@ -267,9 +267,9 @@ class HookEvent {
   }
 }
 var ReflectOwnKeys,
-  R = "object" == typeof Reflect ? Reflect : null,
+  R = typeof Reflect == "object" ? Reflect : null,
   ReflectApply =
-    R && "function" == typeof R.apply
+    R && typeof R.apply == "function"
       ? R.apply
       : function (e, t, r) {
           return Function.prototype.apply.call(e, t, r);
@@ -278,7 +278,7 @@ function ProcessEmitWarning(e) {
   console && console.warn && console.warn(e);
 }
 ReflectOwnKeys =
-  R && "function" == typeof R.ownKeys
+  R && typeof R.ownKeys == "function"
     ? R.ownKeys
     : Object.getOwnPropertySymbols
       ? function (e) {
@@ -303,7 +303,7 @@ function EventEmitter() {
   (EventEmitter.prototype._maxListeners = void 0);
 var defaultMaxListeners = 10;
 function checkListener(e) {
-  if ("function" != typeof e)
+  if (typeof e != "function")
     throw new TypeError(
       'The "listener" argument must be of type Function. Received type ' + typeof e,
     );
@@ -326,7 +326,7 @@ function _addListener(e, t, r, n) {
   )
     (o = i[t] = r), ++e._eventsCount;
   else if (
-    ("function" == typeof o
+    (typeof o == "function"
       ? (o = i[t] = n ? [r, o] : [o, r])
       : n
         ? o.unshift(r)
@@ -354,7 +354,7 @@ function onceWrapper() {
     return (
       this.target.removeListener(this.type, this.wrapFn),
       (this.fired = !0),
-      0 === arguments.length
+      arguments.length === 0
         ? this.listener.call(this.target)
         : this.listener.apply(this.target, arguments)
     );
@@ -370,7 +370,7 @@ function _listeners(e, t, r) {
   var s = n[t];
   return void 0 === s
     ? []
-    : "function" == typeof s
+    : typeof s == "function"
       ? r
         ? [s.listener || s]
         : [s]
@@ -382,7 +382,7 @@ function listenerCount(e) {
   var t = this._events;
   if (void 0 !== t) {
     var r = t[e];
-    if ("function" == typeof r) return 1;
+    if (typeof r == "function") return 1;
     if (void 0 !== r) return r.length;
   }
   return 0;
@@ -406,20 +406,20 @@ function once(e, t) {
       e.removeListener(t, i), n(r);
     }
     function i() {
-      "function" == typeof e.removeListener && e.removeListener("error", s),
+      typeof e.removeListener == "function" && e.removeListener("error", s),
         r([].slice.call(arguments));
     }
     eventTargetAgnosticAddListener(e, t, i, { once: !0 }),
-      "error" !== t && addErrorHandlerIfEventEmitter(e, s, { once: !0 });
+      t !== "error" && addErrorHandlerIfEventEmitter(e, s, { once: !0 });
   });
 }
 function addErrorHandlerIfEventEmitter(e, t, r) {
-  "function" == typeof e.on && eventTargetAgnosticAddListener(e, "error", t, r);
+  typeof e.on == "function" && eventTargetAgnosticAddListener(e, "error", t, r);
 }
 function eventTargetAgnosticAddListener(e, t, r, n) {
-  if ("function" == typeof e.on) n.once ? e.once(t, r) : e.on(t, r);
+  if (typeof e.on == "function") n.once ? e.once(t, r) : e.on(t, r);
   else {
-    if ("function" != typeof e.addEventListener)
+    if (typeof e.addEventListener != "function")
       throw new TypeError(
         'The "emitter" argument must be of type EventEmitter. Received type ' +
           typeof e,
@@ -435,7 +435,7 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
     return defaultMaxListeners;
   },
   set: function (e) {
-    if ("number" != typeof e || e < 0 || NumberIsNaN(e))
+    if (typeof e != "number" || e < 0 || NumberIsNaN(e))
       throw new RangeError(
         'The value of "defaultMaxListeners" is out of range. It must be a non-negative number. Received ' +
           e +
@@ -451,7 +451,7 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
       (this._maxListeners = this._maxListeners || void 0);
   }),
   (EventEmitter.prototype.setMaxListeners = function (e) {
-    if ("number" != typeof e || e < 0 || NumberIsNaN(e))
+    if (typeof e != "number" || e < 0 || NumberIsNaN(e))
       throw new RangeError(
         'The value of "n" is out of range. It must be a non-negative number. Received ' +
           e +
@@ -464,7 +464,7 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
   }),
   (EventEmitter.prototype.emit = function (e) {
     for (var t = [], r = 1; r < arguments.length; r++) t.push(arguments[r]);
-    var n = "error" === e,
+    var n = e === "error",
       s = this._events;
     if (void 0 !== s) n = n && void 0 === s.error;
     else if (!n) return !1;
@@ -476,7 +476,7 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
     }
     var a = s[e];
     if (void 0 === a) return !1;
-    if ("function" == typeof a) ReflectApply(a, this, t);
+    if (typeof a == "function") ReflectApply(a, this, t);
     else {
       var c = a.length,
         u = arrayClone(a, c);
@@ -502,19 +502,19 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
     if ((checkListener(t), void 0 === (n = this._events))) return this;
     if (void 0 === (r = n[e])) return this;
     if (r === t || r.listener === t)
-      0 == --this._eventsCount
+      --this._eventsCount == 0
         ? (this._events = Object.create(null))
         : (delete n[e],
           n.removeListener && this.emit("removeListener", e, r.listener || t));
-    else if ("function" != typeof r) {
+    else if (typeof r != "function") {
       for (s = -1, i = r.length - 1; i >= 0; i--)
         if (r[i] === t || r[i].listener === t) {
           (o = r[i].listener), (s = i);
           break;
         }
       if (s < 0) return this;
-      0 === s ? r.shift() : spliceOne(r, s),
-        1 === r.length && (n[e] = r[0]),
+      s === 0 ? r.shift() : spliceOne(r, s),
+        r.length === 1 && (n[e] = r[0]),
         void 0 !== n.removeListener && this.emit("removeListener", e, o || t);
     }
     return this;
@@ -525,19 +525,19 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
     if (void 0 === (r = this._events)) return this;
     if (void 0 === r.removeListener)
       return (
-        0 === arguments.length
+        arguments.length === 0
           ? ((this._events = Object.create(null)), (this._eventsCount = 0))
           : void 0 !== r[e] &&
-            (0 == --this._eventsCount
+            (--this._eventsCount == 0
               ? (this._events = Object.create(null))
               : delete r[e]),
         this
       );
-    if (0 === arguments.length) {
+    if (arguments.length === 0) {
       var s,
         i = Object.keys(r);
       for (n = 0; n < i.length; ++n)
-        "removeListener" !== (s = i[n]) && this.removeAllListeners(s);
+        (s = i[n]) !== "removeListener" && this.removeAllListeners(s);
       return (
         this.removeAllListeners("removeListener"),
         (this._events = Object.create(null)),
@@ -545,7 +545,7 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
         this
       );
     }
-    if ("function" == typeof (t = r[e])) this.removeListener(e, t);
+    if (typeof (t = r[e]) == "function") this.removeListener(e, t);
     else if (void 0 !== t)
       for (n = t.length - 1; n >= 0; n--) this.removeListener(e, t[n]);
     return this;
@@ -557,7 +557,7 @@ Object.defineProperty(EventEmitter, "defaultMaxListeners", {
     return _listeners(this, e, !1);
   }),
   (EventEmitter.listenerCount = function (e, t) {
-    return "function" == typeof e.listenerCount
+    return typeof e.listenerCount == "function"
       ? e.listenerCount(t)
       : listenerCount.call(e, t);
   }),
